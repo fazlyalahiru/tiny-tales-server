@@ -44,6 +44,12 @@ async function run() {
             res.send(result)
         })
 
+        // get user specific toys
+        app.get('/my-toys/:email', async(req,res)=>{
+            const result = await toyCollection.find({sellerEmail: req.params.email}).toArray(); 
+            res.send(result)
+        })
+
         // insert a toy: post method
         app.post('/upload-toy', async (req, res) => {
             const data = req.body;
