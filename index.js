@@ -60,7 +60,8 @@ async function run() {
         // update a toy
         app.patch('/toy/:id', async (req, res) => {
             const id = req.params.id;
-            const updatedToyData = res.body;
+            const updatedToyData = req.body;
+            console.log(updatedToyData);
             const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
                 $set: {
