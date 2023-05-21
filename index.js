@@ -55,7 +55,7 @@ async function run() {
         });
 
 
-        // get all toys
+        // get all toys together
         app.get('/all-toys', async (req, res) => {
             const allToys = toyCollection.find();
             const result = await allToys.limit(20).toArray();
