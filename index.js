@@ -20,20 +20,54 @@ const client = new MongoClient(uri, {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    }
+    },
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    maxPoolSize: 10
 });
 
 async function run() {
     try {
+        client.connect((err) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+        })
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
         const toyCollection = client.db("tiny-tales").collection("toys")
+
+        // Creating index 
+        const indexKey = { toyName: 1 };
+        const indexOption = { name: "searchToy" };
+        const result = await toyCollection.createIndex(indexKey, indexOption);
+
+        app.get('/all-toys/:search', async (req, res) => {
+            const searchText = req.params.search;
+            const result = await toyCollection.find({
+                 
+                     toyName: { $regex: searchText, $options: "i" } 
+                    // { subCategory: { $regex: searchText, $options: "i" } }
+                
+            }).toArray();
+            res.send(result);
+        });
+
 
         // get all toys
         app.get('/all-toys', async (req, res) => {
             const allToys = toyCollection.find();
-            const result = await allToys.toArray();
+            const result = await allToys.limit(20).toArray();
             res.send(result)
+        })
+
+        //get filtered toys
+        app.get('/all-toys/:Category', async (req, res) => {
+            if (req.params.Category == "LEGO City" || req.params.Category == "LEGO Star Wars" || req.params.Category == "LEGO Ninjago") {
+                const result = await toyCollection.find({ subCategory: req.params.Category }).limit(3).toArray();
+                return res.send(result)
+            }
         })
 
         // get specific data from db
@@ -45,8 +79,16 @@ async function run() {
         })
 
         // get user specific toys
-        app.get('/my-toys/:email', async(req,res)=>{
-            const result = await toyCollection.find({sellerEmail: req.params.email}).toArray(); 
+        app.get('/my-toys/:email', async (req, res) => {
+            const result = await toyCollection.find({ sellerEmail: req.params.email }).toArray();
+            res.send(result)
+        })
+        app.get('/my-toy-asc/:email', async (req, res) => {
+            const result = await toyCollection.find({ sellerEmail: req.params.email }).sort({price: 1}).toArray();
+            res.send(result)
+        })
+        app.get('/my-toy-des/:email', async (req, res) => {
+            const result = await toyCollection.find({ sellerEmail: req.params.email }).sort({price: -1}).toArray();
             res.send(result)
         })
 
