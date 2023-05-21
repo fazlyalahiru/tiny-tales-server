@@ -46,10 +46,10 @@ async function run() {
         app.get('/all-toys/:search', async (req, res) => {
             const searchText = req.params.search;
             const result = await toyCollection.find({
-                 
-                     toyName: { $regex: searchText, $options: "i" } 
-                    // { subCategory: { $regex: searchText, $options: "i" } }
-                
+
+                toyName: { $regex: searchText, $options: "i" }
+                // { subCategory: { $regex: searchText, $options: "i" } }
+
             }).toArray();
             res.send(result);
         });
@@ -62,13 +62,16 @@ async function run() {
             res.send(result)
         })
 
-        //get filtered toys
-        app.get('/all-toys/:Category', async (req, res) => {
-            if (req.params.Category == "LEGO City" || req.params.Category == "LEGO Star Wars" || req.params.Category == "LEGO Ninjago") {
-                const result = await toyCollection.find({ subCategory: req.params.Category }).limit(3).toArray();
+        // get filtered toys
+        app.get('/filtered-toys/:category', async (req, res) => {
+            if (req.params.category == "LEGO City" || req.params.category == "LEGO Star Wars" || req.params.category == "LEGO Ninjago") {
+                const result = await toyCollection.find({ subCategory: req.params.category }).limit(3).toArray();
                 return res.send(result)
             }
         })
+
+       
+
 
         // get specific data from db
         app.get('/toy/:id', async (req, res) => {
@@ -84,11 +87,11 @@ async function run() {
             res.send(result)
         })
         app.get('/my-toy-asc/:email', async (req, res) => {
-            const result = await toyCollection.find({ sellerEmail: req.params.email }).sort({price: 1}).toArray();
+            const result = await toyCollection.find({ sellerEmail: req.params.email }).sort({ price: 1 }).toArray();
             res.send(result)
         })
         app.get('/my-toy-des/:email', async (req, res) => {
-            const result = await toyCollection.find({ sellerEmail: req.params.email }).sort({price: -1}).toArray();
+            const result = await toyCollection.find({ sellerEmail: req.params.email }).sort({ price: -1 }).toArray();
             res.send(result)
         })
 
